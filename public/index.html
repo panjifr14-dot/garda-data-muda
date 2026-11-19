@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aplikasi Lapangan Garda Data Muda</title>
+<style>
+:root{--bg:#e9edf3;--surface:#fff;--text:#111827;--muted:#6b7280;--line:#d1d5db;--navy:#1f3a5f;--amber:#c8862b;--green:#2e7d5b;--red:#b3412f;--chip:#eef2f7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--surface:#1e293b;--text:#e5e7eb;--muted:#94a3b8;--line:#334155;--navy:#2c4f80;--amber:#e0a04a;--green:#4fb98a;--red:#e0705c;--chip:#273449;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1220;--surface:#1e293b;--text:#e5e7eb;--muted:#94a3b8;--line:#334155;--navy:#2c4f80;--amber:#e0a04a;--green:#4fb98a;--red:#e0705c;--chip:#273449;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;min-height:100vh}
+.top{max-width:420px;margin:0 auto;padding:14px 12px 0;text-align:center}
+.top h1{font-size:1rem;margin:0 0 2px}.top p{margin:0;color:var(--muted);font-size:.78rem}
+.tag{display:inline-block;background:var(--amber);color:#fff;font-weight:700;font-size:.68rem;padding:3px 8px;border-radius:6px;margin-top:6px}
+.tabs{display:flex;gap:6px;justify-content:center;margin:12px 0}
+.tabs button{font:inherit;font-size:.78rem;border:1px solid var(--line);background:var(--surface);color:var(--text);padding:6px 10px;border-radius:999px;cursor:pointer}
+.tabs button[aria-current="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.phone{width:min(100% - 24px,360px);height:640px;margin:0 auto 24px;background:var(--surface);border:2px solid #374151;border-radius:28px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.bar{background:var(--navy);color:#fff;padding:14px 16px}
+.bar b{font-size:1rem}.bar small{display:block;opacity:.8;font-size:.74rem}
+.body{flex:1;overflow:auto;padding:12px 14px}
+.foot{padding:10px 14px 14px;border-top:1px solid var(--line)}
+.btn{width:100%;font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px;color:#fff;background:var(--green);cursor:pointer}
+.btn.navy{background:var(--navy)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.hint{font-size:.74rem;color:var(--muted);margin:6px 2px 0;min-height:1.1em}
+.task{display:block;width:100%;text-align:left;font:inherit;background:var(--chip);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;cursor:pointer}
+.task b{display:block}.task span{font-size:.78rem;color:var(--muted)}
+.chip{float:right;font-size:.68rem;font-weight:700;color:#fff;padding:3px 8px;border-radius:999px;background:var(--amber)}
+.chip.sch{background:var(--navy)}
+label.f{display:block;font-size:.76rem;color:var(--muted);margin:10px 0 4px}
+select,textarea{width:100%;font:inherit;font-size:.86rem;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px}
+.ck{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:.9rem}
+.ck input{width:20px;height:20px;accent-color:var(--green)}
+.photos{display:flex;gap:8px;flex-wrap:wrap}
+.ph{width:58px;height:50px;border-radius:8px;border:1px solid var(--line);background:var(--chip);display:grid;place-items:center;font-size:.7rem;color:var(--muted)}
+.add{font:inherit;font-size:1.2rem;border:1px dashed var(--muted);background:transparent;color:var(--muted);cursor:pointer}
+.mini{font:inherit;font-size:.78rem;border:1px solid var(--line);background:var(--chip);color:var(--text);padding:6px 10px;border-radius:999px;cursor:pointer;margin-top:6px}
+.prog{height:6px;border-radius:6px;background:var(--chip);overflow:hidden;margin:2px 0 6px}.prog i{display:block;height:100%;background:var(--green);width:0}
+.warn{background:#fbefd9;color:#7a4e0e;border:1px solid var(--amber);border-radius:10px;padding:8px 10px;font-size:.8rem;margin-top:8px}
+.step{display:flex;gap:10px;margin-bottom:6px}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--muted);margin-top:4px;flex:none}.dot.ok{background:var(--green)}.dot.wait{background:var(--amber)}
+.step b{font-size:.88rem;display:block}.step small{color:var(--muted)}
+.line{margin-left:6px;border-left:2px solid var(--line);height:14px}
+.sheet{position:absolute;inset:auto 0 0 0;background:var(--surface);border-top:2px solid var(--line);border-radius:18px 18px 0 0;padding:14px;box-shadow:0 -8px 24px rgba(0,0,0,.2)}
+.toast{position:absolute;left:14px;right:14px;top:70px;background:#111827;color:#fff;padding:10px 12px;border-radius:10px;font-size:.82rem;opacity:0;transform:translateY(-6px);transition:.25s;pointer-events:none}
+.toast.on{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Aplikasi Lapangan Garda Data Muda</h1>
+  <p>Mockup interaktif untuk esai ASF 2026</p>
+  <span class="tag">PROTOTIPE · DATA DEMO</span> <a href="/dashboard.html" style="font-size:.78rem">Dasbor</a>
+  <div class="tabs" id="tabs"></div>
+</div>
+<div class="phone" id="phone"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+let TASKS=[];
+const CK=["Hunian","Aset","Komposisi keluarga","Mata pencaharian","Kejadian rentan"];
+const S={scr:1,task:0,ck:[0,0,0,0,0],photos:0,gps:false,v1:"Garda A (RW 02)",v2:"Garda B (RW 04)",note:"",sent:false,sheet:false};
+const rwOf=v=>v.match(/RW \d+/)[0];
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove("on"),2200);}
+function ready(){const n=S.ck.filter(Boolean).length;const diff=rwOf(S.v1)!==rwOf(S.v2);return {n,diff,ok:n>=3&&S.photos>=1&&S.gps&&diff};}
+function tabs(){ $("#tabs").innerHTML=["1 Penugasan","2 Verifikasi","3 Ringkasan"].map((t,i)=>`<button data-s="${i+1}" ${S.scr===i+1?'aria-current="true"':''}>${t}</button>`).join("");
+  document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{S.scr=+b.dataset.s;S.sheet=false;render();});}
+function render(){
+  const t=TASKS[S.task]; let h="";
+  if(S.scr===1){
+    h=`<div class="bar"><b>Penugasan</b><small>Desa Contoh · ${TASKS.length} tugas</small></div><div class="body">`+
+      TASKS.map((k,i)=>`<button class="task" data-t="${i}"><span class="chip ${k.st==='Dijadwalkan'?'sch':''}">${k.st}</span><b>#${k.id} ${k.sig}</b><span>${k.rw} · batas ${k.due}</span></button>`).join("")+
+      `<p class="hint">Ketuk satu tugas untuk memulai kunjungan berpasangan.</p></div><div class="foot"><button class="btn" id="go">Mulai kunjungan</button></div>`;
+  }else if(S.scr===2){
+    const r=ready();
+    h=`<div class="bar"><b>Verifikasi #${t.id}</b><small>${t.sig} · ${t.rw}</small></div><div class="body">
+      <label class="f">Verifikator 1</label><select id="v1">${["Garda A (RW 02)","Garda C (RW 04)"].map(x=>`<option ${S.v1===x?'selected':''}>${x}</option>`).join("")}</select>
+      <label class="f">Verifikator 2</label><select id="v2">${["Garda B (RW 04)","Garda D (RW 02)"].map(x=>`<option ${S.v2===x?'selected':''}>${x}</option>`).join("")}</select>
+      ${r.diff?"":`<div class="warn">Dua verifikator harus berasal dari RW yang berbeda.</div>`}
+      <label class="f">Daftar periksa (selaras variabel DTSEN)</label>
+      ${CK.map((c,i)=>`<label class="ck"><input type="checkbox" data-c="${i}" ${S.ck[i]?'checked':''}>${c}</label>`).join("")}
+      <label class="f">Foto rumah</label><div class="photos">${Array.from({length:S.photos},(_,i)=>`<div class="ph">Foto ${i+1}</div>`).join("")}${S.photos<3?`<button class="ph add" id="addp" aria-label="Tambah foto">+</button>`:""}</div>
+      <button class="mini" id="gps">${S.gps?"Koordinat tercatat (±8 m)":"Catat koordinat"}</button>
+      <label class="f">Catatan ketua RT (dicatat terpisah)</label><textarea id="note" rows="3" placeholder="Keterangan tetangga atau ketua RT">${S.note}</textarea>
+      <div class="prog"><i style="width:${Math.round(((r.n>=3)+(S.photos>=1)+S.gps+r.diff)/4*100)}%"></i></div>
+    </div><div class="foot"><button class="btn navy" id="save" ${r.ok?"":"disabled"}>Simpan dan kirim</button><p class="hint">${r.ok?"Semua syarat terpenuhi.":"Syarat: ≥3 butir periksa, ≥1 foto, koordinat, dan RW verifikator berbeda."}</p></div>`;
+  }else{
+    h=`<div class="bar"><b>Ringkasan dan unggah</b><small>Kunjungan #${t.id}</small></div><div class="body">
+      <div class="step"><i class="dot ok"></i><div><b>Pemeriksaan fasilitator</b><small>Selesai</small></div></div><div class="line"></div>
+      <div class="step"><i class="dot ${S.sent?'ok':'wait'}"></i><div><b>Unggah via operator desa</b><small>${S.sent?"Terkirim":"Menunggu"}</small></div></div><div class="line"></div>
+      <div class="step"><i class="dot"></i><div><b>Penetapan desil oleh BPS</b><small>${S.sent?"Menunggu BPS":"Belum"}</small></div></div><div class="line"></div>
+      <div class="step"><i class="dot"></i><div><b>Penjelasan hasil ke keluarga</b><small>Belum</small></div></div>
+      <div class="warn" style="margin-top:14px">Garda tidak mengubah data atau menentukan kelayakan. Penetapan desil oleh BPS.</div>
+    </div><div class="foot">${S.sent?`<button class="btn" id="ref">Buat rujukan layanan</button>`:`<button class="btn navy" id="up">Unggah via operator desa</button>`}</div>`;
+  }
+  if(S.sheet) h+=`<div class="sheet"><b>Rujukan layanan</b>${["Jaminan kesehatan","Program Indonesia Pintar","Dokumen kependudukan","Pelatihan kerja"].map(x=>`<label class="ck"><input type="checkbox" checked>${x}</label>`).join("")}<button class="btn" id="sendref">Kirim rujukan</button></div>`;
+  $("#phone").innerHTML=h+`<div class="toast" id="toast"></div>`; tabs(); bind();
+}
+function bind(){
+  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.task=+b.dataset.t;S.scr=2;S.ck=[0,0,0,0,0];S.photos=0;S.gps=false;S.sent=false;render();});
+  const on=(id,f)=>{const e=$("#"+id);if(e)e.onclick=f;};
+  on("go",()=>{S.scr=2;render();});
+  document.querySelectorAll("[data-c]").forEach(c=>c.onchange=()=>{S.ck[+c.dataset.c]=c.checked?1:0;render();});
+  ["v1","v2"].forEach(k=>{const e=$("#"+k);if(e)e.onchange=()=>{S[k]=e.value;render();};});
+  const nt=$("#note");if(nt)nt.oninput=()=>{S.note=nt.value;};
+  on("addp",()=>{S.photos++;render();});
+  on("gps",()=>{S.gps=true;render();toast("Koordinat dicatat (simulasi)");});
+  on("save",async()=>{const r=await fetch("/api/visits",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task_id:TASKS[S.task].id,v1:S.v1,v2:S.v2,checklist:S.ck,photos:S.photos,gps:S.gps,note:S.note})});const j=await r.json();if(!r.ok)return toast(j.error);S.visit=j.id;S.scr=3;render();toast("Formulir disimpan");});
+  on("up",async()=>{const r=await fetch("/api/visits/"+S.visit+"/upload",{method:"POST"});if(!r.ok)return toast("Gagal mengunggah");S.sent=true;render();toast("Terkirim ke operator desa");});
+  on("ref",()=>{S.sheet=true;render();});
+  on("sendref",async()=>{const sv=[...document.querySelectorAll(".sheet input:checked")].map(i=>i.parentElement.textContent.trim());await fetch("/api/referrals",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({visit_id:S.visit,services:sv})});S.sheet=false;render();toast("Rujukan dikirim, tindak lanjut hari ke-30");});
+}
+fetch("/api/tasks").then(r=>r.json()).then(t=>{TASKS=t.map(k=>({id:k.id,sig:k.signal,rw:k.rw,due:k.due,st:k.status}));render();});
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dasbor Garda Data Muda</title>
+<style>
+:root{--bg:#f3f5f8;--s:#fff;--t:#111827;--m:#6b7280;--l:#d1d5db;--n:#1f3a5f;--a:#c8862b;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--bg:#0f172a;--s:#1e293b;--t:#e5e7eb;--m:#94a3b8;--l:#334155;--n:#7aa2d6;--a:#e0a04a}}
+body{margin:0;background:var(--bg);color:var(--t);font:15px system-ui,sans-serif;padding:12px 14px 28px}
+main{max-width:900px;margin:0 auto}h1{font-size:1.2rem}.k{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.c{background:var(--s);border:1px solid var(--l);border-radius:12px;padding:12px;margin-top:12px}.k .c{margin:0}.k b{font-size:1.7rem;color:var(--n);display:block}.k small{color:var(--m)}
+.r{display:grid;grid-template-columns:110px 1fr 30px;gap:8px;align-items:center;margin:6px 0;font-size:.85rem}.tr{background:var(--bg);border-radius:6px;height:14px}.tr i{display:block;height:100%;background:var(--n);border-radius:6px}
+table{width:100%;border-collapse:collapse;font-size:.85rem}td,th{text-align:left;padding:7px;border-bottom:1px solid var(--l)}
+input,button{font:inherit;padding:7px 9px;border:1px solid var(--l);border-radius:8px;background:var(--s);color:var(--t)}button{background:var(--n);color:#fff;cursor:pointer}
+</style></head><body><main>
+<h1>Dasbor akuntabilitas Garda Data Muda <small style="color:var(--a)">(prototipe · data demo)</small></h1>
+<div class="k" id="k"></div>
+<div class="c"><b>Tugas menurut status</b><div id="bars"></div></div>
+<div class="c"><b>Keluhan terhadap Garda (anonim)</b><table><thead><tr><th>Kecamatan</th><th>Jenis keluhan</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table>
+<p><input id="kec" placeholder="Kecamatan" size="10"> <input id="jen" placeholder="Jenis keluhan" size="26"> <button id="send">Kirim keluhan</button></p></div>
+<p><a href="/">Buka aplikasi lapangan</a></p>
+<script>
+const $=s=>document.querySelector(s),J=u=>fetch(u).then(r=>r.json());
+async function load(){
+  const [s,c]=await Promise.all([J("/api/stats"),J("/api/complaints")]);
+  const pct=s.tasks?Math.round(s.verified/s.tasks*100):0;
+  $("#k").innerHTML=[["Tugas",s.tasks],["Terverifikasi",pct+"%"],["Terkirim ke operator",s.uploaded],["Rujukan",s.referrals],["Keluhan",s.complaints]].map(x=>`<div class="c"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");
+  $("#bars").innerHTML=s.byStatus.map(x=>`<div class="r"><span>${x.status}</span><div class="tr"><i style="width:${x.n/s.tasks*100}%"></i></div><b>${x.n}</b></div>`).join("");
+  $("#rows").innerHTML=c.map(x=>`<tr><td></td><td></td><td>${x.status}</td></tr>`).join("");
+  [...$("#rows").children].forEach((tr,i)=>{tr.children[0].textContent=c[i].kecamatan;tr.children[1].textContent=c[i].jenis;});
+}
+$("#send").onclick=async()=>{await fetch("/api/complaints",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({kecamatan:$("#kec").value,jenis:$("#jen").value})});$("#jen").value="";load();};
+load();
+</script></main></body></html>
