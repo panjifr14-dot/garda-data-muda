@@ -1,8 +1,10 @@
 const express = require("express");
 const path = require("path");
+const os = require("os");
 const { DatabaseSync } = require("node:sqlite");
 
-const db = new DatabaseSync(process.env.DB_PATH || path.join(__dirname, "garda.db"));
+const dbPath = process.env.DB_PATH || (process.env.VERCEL ? path.join(os.tmpdir(), "garda.db") : path.join(__dirname, "garda.db"));
+const db = new DatabaseSync(dbPath);
 db.exec(`
 CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY, signal TEXT, rw TEXT, due TEXT, status TEXT DEFAULT 'Baru');
 CREATE TABLE IF NOT EXISTS visits(id INTEGER PRIMARY KEY AUTOINCREMENT, task_id TEXT, v1 TEXT, v2 TEXT, checklist TEXT, photos INTEGER, gps INTEGER, note TEXT, uploaded INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
@@ -101,5 +103,9 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Garda Data Muda berjalan di http://localhost:${port}`));
+if (require.main === module) {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => console.log(`Garda Data Muda berjalan di http://localhost:${port}`));
+}
+
+module.exports = app;

@@ -4,7 +4,7 @@
   "description": "Prototipe fullstack Garda Data Muda: verifikasi lapangan, sanggah, rujukan, dan dasbor akuntabilitas (esai ASF 2026).",
   "main": "server.js",
   "scripts": { "start": "node --disable-warning=ExperimentalWarning server.js" },
-  "engines": { "node": ">=22.5" },
+  "engines": { "node": "22.x" },
   "license": "MIT",
   "dependencies": { "express": "^4.21.2" }
 }

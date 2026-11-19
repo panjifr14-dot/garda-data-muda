@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dasbor Akuntabilitas Garda Data Muda</title>
+<style>
+:root{--bg:#f3f5f8;--surface:#fff;--text:#111827;--muted:#6b7280;--line:#d1d5db;--navy:#1f3a5f;--amber:#c8862b;--green:#2e7d5b;--red:#b3412f;--chip:#eef2f7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f172a;--surface:#1e293b;--text:#e5e7eb;--muted:#94a3b8;--line:#334155;--navy:#7aa2d6;--amber:#e0a04a;--green:#4fb98a;--red:#e0705c;--chip:#273449;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f172a;--surface:#1e293b;--text:#e5e7eb;--muted:#94a3b8;--line:#334155;--navy:#7aa2d6;--amber:#e0a04a;--green:#4fb98a;--red:#e0705c;--chip:#273449;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px 32px}
+header{background:var(--navy);color:#fff;border-radius:0 0 14px 14px;padding:16px 18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+:root[data-theme="dark"] header,:root:not([data-theme="light"]) header{}
+header h1{margin:0;font-size:1.2rem}
+header p{margin:2px 0 0;font-size:.8rem;opacity:.85}
+.badge{background:var(--amber);color:#fff;font-weight:700;font-size:.72rem;letter-spacing:.04em;padding:6px 10px;border-radius:8px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.controls button,.controls select{font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--surface);color:var(--text);padding:7px 12px;border-radius:999px;cursor:pointer}
+.controls button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--green);border-radius:12px;padding:12px 14px}
+.kpi.warn{border-left-color:var(--amber)}
+.kpi small{display:block;color:var(--muted);font-size:.75rem;min-height:2.2em}
+.kpi b{display:block;font-size:1.9rem;color:var(--navy);line-height:1.2}
+.kpi span{font-size:.75rem;color:var(--muted)}
+.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:12px;margin-top:12px}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card h2{margin:0 0 8px;font-size:.95rem}
+svg{width:100%;height:auto;display:block}
+.axis text{fill:var(--muted);font-size:10px}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.legend button{font:inherit;font-size:.78rem;border:1px solid var(--line);background:var(--chip);color:var(--text);padding:4px 10px;border-radius:999px;cursor:pointer}
+.legend button[aria-pressed="false"]{opacity:.45}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.bars{display:grid;gap:8px;position:relative}
+.bar{display:grid;grid-template-columns:64px 1fr 40px;gap:8px;align-items:center;font-size:.82rem}
+.track{background:var(--chip);border-radius:6px;height:16px;position:relative;overflow:hidden}
+.fill{height:100%;background:var(--navy);border-radius:6px}
+.target{position:absolute;top:-2px;bottom:-2px;width:0;border-left:2px dashed var(--amber)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:.76rem}
+.st{padding:2px 9px;border-radius:999px;font-size:.74rem;font-weight:600}
+.st.Ditindak{background:#f6e3df;color:#8a2f20}.st.Selesai{background:#dcf0e6;color:#1d5a40}.st.Diproses{background:#fbefd9;color:#8a5a12}
+.note{color:var(--muted);font-size:.78rem;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><h1>Dasbor Akuntabilitas Garda Data Muda</h1><p>Kabupaten Contoh · Triwulan III · 100 desa pilot dan 100 desa pembanding</p></div>
+  <span class="badge">DATA ILUSTRASI</span>
+</header>
+
+<div class="controls" role="group" aria-label="Periode">
+  <button data-q="1" aria-pressed="false">Triwulan I</button>
+  <button data-q="2" aria-pressed="false">Triwulan II</button>
+  <button data-q="3" aria-pressed="true">Triwulan III</button>
+  <button id="theme" aria-pressed="false" title="Ganti tema">Tema gelap</button>
+</div>
+
+<section class="kpis" id="kpis"></section>
+
+<div class="grid">
+  <div class="card">
+    <h2>Median hari penyelesaian sanggah per bulan</h2>
+    <div class="legend" id="legend">
+      <button data-s="pilot" aria-pressed="true"><span class="dot" style="background:var(--navy)"></span>Desa pilot</button>
+      <button data-s="comp" aria-pressed="true"><span class="dot" style="background:var(--amber)"></span>Desa pembanding</button>
+    </div>
+    <svg id="chart" viewBox="0 0 520 230" role="img" aria-label="Grafik median hari penyelesaian sanggah"></svg>
+  </div>
+  <div class="card">
+    <h2>Keluarga prioritas terverifikasi dalam 30 hari</h2>
+    <div class="bars" id="bars"></div>
+    <p class="note" style="margin-top:10px">Garis putus-putus menandai target 80%.</p>
+  </div>
+</div>
+
+<div class="card" style="margin-top:12px">
+  <h2>Keluhan terhadap Garda (anonim, terbuka untuk publik)</h2>
+  <div class="controls" style="margin:4px 0 8px"><label>Status:
+    <select id="filter"><option value="">Semua</option><option>Ditindak</option><option>Diproses</option><option>Selesai</option></select></label></div>
+  <div class="tbl"><table><thead><tr><th>Kode</th><th>Kecamatan</th><th>Jenis keluhan</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table></div>
+</div>
+
+<p class="note">Seluruh angka pada halaman ini adalah data ilustrasi untuk mockup esai ASF 2026, bukan data riil. Dasbor sungguhan hanya memuat agregat tanpa identitas warga.</p>
+</div>
+
+<script>
+const D = {
+  1: {kpi:[["Median hari sanggah","29","pembanding: 31",0],["Prioritas terverifikasi dalam 30 hari","41%","target: 80%",1],["Kesesuaian dengan audit acak","84%","n = 60 kunjungan",1],["Rujukan selesai dalam 90 hari","22%","target: 70%",1],["Keluhan per 1.000 kunjungan","7,4","selesai 14 hari: 70%",1]],
+      pilot:[32,31,30,29], comp:[33,32,32,31], bars:[52,47,44,38,31]},
+  2: {kpi:[["Median hari sanggah","19","pembanding: 30",0],["Prioritas terverifikasi dalam 30 hari","63%","target: 80%",1],["Kesesuaian dengan audit acak","89%","n = 90 kunjungan",1],["Rujukan selesai dalam 90 hari","48%","target: 70%",1],["Keluhan per 1.000 kunjungan","4,6","selesai 14 hari: 80%",0]],
+      pilot:[32,31,30,29,27,24,21,19], comp:[33,32,32,31,31,30,30,30], bars:[74,70,66,60,52]},
+  3: {kpi:[["Median hari sanggah","14","pembanding: 29",0],["Prioritas terverifikasi dalam 30 hari","78%","target: 80%",1],["Kesesuaian dengan audit acak","92%","n = 120 kunjungan",0],["Rujukan selesai dalam 90 hari","64%","target: 70%",1],["Keluhan per 1.000 kunjungan","3,1","selesai 14 hari: 88%",0]],
+      pilot:[32,30,27,24,21,19,17,16,15,14,14,13], comp:[32,31,31,30,30,29,30,29,29,29,28,29], bars:[85,81,76,70,64]}
+};
+const KEC=["Kec. A","Kec. B","Kec. C","Kec. D","Kec. E"];
+const ROWS=[["K-017","Kec. B","Dugaan pungutan oleh verifikator","Ditindak"],["K-021","Kec. D","Kunjungan terlambat dari jadwal","Selesai"],["K-024","Kec. A","Salah catat alamat pada formulir","Diproses"],["K-026","Kec. C","Alasan penolakan tidak dijelaskan","Selesai"],["K-029","Kec. E","Foto rumah tidak berkoordinat","Diproses"]];
+let q=3; const show={pilot:true,comp:true};
+const $=s=>document.querySelector(s);
+function kpis(){ $("#kpis").innerHTML=D[q].kpi.map(k=>`<div class="kpi ${k[3]?'warn':''}"><small>${k[0]}</small><b>${k[1]}</b><span>${k[2]}</span></div>`).join(""); }
+function chart(){
+  const d=D[q], W=520,H=230,L=34,R=10,T=10,B=26, n=Math.max(d.pilot.length,2);
+  const x=i=>L+(W-L-R)*i/Math.max(n-1,1), y=v=>T+(H-T-B)*(1-v/40);
+  let s=`<g class="axis">`;
+  [0,10,20,30,40].forEach(v=>{s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(v)+3}" text-anchor="end">${v}</text>`});
+  d.pilot.forEach((_,i)=>{ if(n<=8||i%2===0) s+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${i+1}</text>`});
+  s+=`<text x="${W/2}" y="${H}" text-anchor="middle" style="font-size:9px">Bulan ke-</text></g>`;
+  [["pilot","var(--navy)",""],["comp","var(--amber)","6 4"]].forEach(([k,c,dash])=>{
+    if(!show[k]) return;
+    const pts=d[k].map((v,i)=>`${x(i)},${y(v)}`).join(" ");
+    s+=`<polyline fill="none" stroke="${c}" stroke-width="2.4" stroke-dasharray="${dash}" points="${pts}"/>`;
+    d[k].forEach((v,i)=>{s+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.4" fill="${c}"><title>Bulan ${i+1}: ${v} hari (${k==="pilot"?"pilot":"pembanding"})</title></circle>`});
+  });
+  $("#chart").innerHTML=s;
+}
+function bars(){
+  $("#bars").innerHTML=D[q].bars.map((v,i)=>`<div class="bar"><span>${KEC[i]}</span><div class="track"><div class="fill" style="width:${v}%"></div><div class="target" style="left:80%"></div></div><b>${v}%</b></div>`).join("");
+}
+function rows(){
+  const f=$("#filter").value;
+  $("#rows").innerHTML=ROWS.filter(r=>!f||r[3]===f).map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td><span class="st ${r[3]}">${r[3]}</span></td></tr>`).join("")||`<tr><td colspan="4">Tidak ada keluhan dengan status ini.</td></tr>`;
+}
+function all(){kpis();chart();bars();rows();}
+document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{q=+b.dataset.q;document.querySelectorAll("[data-q]").forEach(x=>x.setAttribute("aria-pressed",x===b));all();});
+document.querySelectorAll("#legend button").forEach(b=>b.onclick=()=>{const k=b.dataset.s;show[k]=!show[k];b.setAttribute("aria-pressed",show[k]);chart();});
+$("#filter").onchange=rows;
+$("#theme").onclick=function(){const r=document.documentElement,dark=r.getAttribute("data-theme")==="dark"||(r.getAttribute("data-theme")!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);r.setAttribute("data-theme",dark?"light":"dark");this.textContent=dark?"Tema gelap":"Tema terang";};
+all();
+</script>
+</body>
+</html>
