@@ -7,6 +7,7 @@ db.exec(`
 CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY, signal TEXT, rw TEXT, due TEXT, status TEXT DEFAULT 'Baru');
 CREATE TABLE IF NOT EXISTS visits(id INTEGER PRIMARY KEY AUTOINCREMENT, task_id TEXT, v1 TEXT, v2 TEXT, checklist TEXT, photos INTEGER, gps INTEGER, note TEXT, uploaded INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE IF NOT EXISTS referrals(id INTEGER PRIMARY KEY AUTOINCREMENT, visit_id INTEGER, services TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS appeals(id INTEGER PRIMARY KEY AUTOINCREMENT, kode TEXT, rw TEXT, bukti TEXT, status TEXT DEFAULT 'Diajukan', created_at TEXT DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE IF NOT EXISTS complaints(id INTEGER PRIMARY KEY AUTOINCREMENT, kecamatan TEXT, jenis TEXT, status TEXT DEFAULT 'Diproses', created_at TEXT DEFAULT CURRENT_TIMESTAMP);
 `);
 
@@ -56,6 +57,24 @@ app.post("/api/referrals", (req, res) => {
   res.status(201).json({ ok: true });
 });
 
+const NEXT = { Diajukan: "Diperiksa", Diperiksa: "Selesai" };
+const nomor = r => ({ ...r, nomor: "SG-" + String(r.id).padStart(4, "0") });
+app.get("/api/visits", (_req, res) => res.json(db.prepare("SELECT id,task_id,uploaded,created_at FROM visits ORDER BY id DESC").all()));
+app.get("/api/appeals", (_req, res) => res.json(db.prepare("SELECT * FROM appeals ORDER BY id DESC").all().map(nomor)));
+app.post("/api/appeals", (req, res) => {
+  const { kode, rw: r, bukti = [] } = req.body || {};
+  if (!/^[A-Za-z0-9-]{3,12}$/.test(String(kode || ""))) return res.status(400).json({ error: "Kode keluarga 3 sampai 12 karakter (huruf, angka, strip). Jangan tulis nama warga." });
+  if (!/^RW \d+$/.test(String(r || ""))) return res.status(400).json({ error: "RW wajib diisi" });
+  const x = db.prepare("INSERT INTO appeals(kode,rw,bukti) VALUES(?,?,?)").run(String(kode).toUpperCase(), r, JSON.stringify(bukti));
+  res.status(201).json(nomor({ id: Number(x.lastInsertRowid) }));
+});
+app.patch("/api/appeals/:id", (req, res) => {
+  const a = db.prepare("SELECT * FROM appeals WHERE id=?").get(Number(req.params.id));
+  if (!a) return res.status(404).json({ error: "Sanggah tidak ditemukan" });
+  if (!NEXT[a.status]) return res.status(400).json({ error: "Sanggah sudah selesai" });
+  db.prepare("UPDATE appeals SET status=? WHERE id=?").run(NEXT[a.status], a.id);
+  res.json({ status: NEXT[a.status] });
+});
 app.get("/api/complaints", (_req, res) => res.json(db.prepare("SELECT id,kecamatan,jenis,status FROM complaints ORDER BY id DESC").all()));
 app.post("/api/complaints", (req, res) => {
   const { kecamatan, jenis } = req.body || {};
@@ -72,11 +91,12 @@ app.get("/api/stats", (_req, res) => res.json({
   referrals: count("SELECT COUNT(*) n FROM referrals"),
   complaints: count("SELECT COUNT(*) n FROM complaints"),
   byStatus: db.prepare("SELECT status, COUNT(*) n FROM tasks GROUP BY status").all(),
+  appeals: db.prepare("SELECT status, COUNT(*) n FROM appeals GROUP BY status").all(),
 }));
 
 if (process.env.NODE_ENV !== "production") {
   app.post("/api/demo/reset", (_req, res) => {
-    db.exec("DELETE FROM referrals; DELETE FROM visits; DELETE FROM tasks; DELETE FROM complaints;");
+    db.exec("DELETE FROM referrals; DELETE FROM visits; DELETE FROM tasks; DELETE FROM complaints; DELETE FROM appeals;");
     seed(); res.json({ ok: true });
   });
 }
